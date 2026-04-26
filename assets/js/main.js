@@ -1,9 +1,36 @@
 /**
- * Sazón Digital - Main JavaScript
- * Common utility functions
+ * ============================================
+ * SAZÓN DIGITAL - FUNCIONES JAVASCRIPT GLOBALES
+ * ============================================
+ *
+ * Este archivo contiene funciones utilitarias que se usan
+ * en TODAS las páginas de la aplicación. Se carga en el footer.
+ *
+ * Funciones incluidas:
+ *   - apiFetch()          → Llamar a la API del servidor
+ *   - showNotification()  → Mostrar mensajes tipo "toast"
+ *   - formatPrice()       → Formatear precios ($12.50)
+ *   - formatDate()        → Formatear fechas legibles
+ *   - confirmAction()     → Confirmar acciones destructivas
  */
 
-// Helper: API fetch with error handling
+/**
+ * Hace una petición HTTP a la API y retorna los datos.
+ *
+ * ¿Qué es fetch()?
+ * Es la función moderna de JavaScript para hacer peticiones HTTP
+ * (reemplaza a XMLHttpRequest). Es "asíncrona" porque no bloquea
+ * la página mientras espera la respuesta del servidor.
+ *
+ * ¿Qué es async/await?
+ * Es una forma moderna de manejar código asíncrono.
+ * "await" pausa la función hasta que la promesa se resuelve.
+ * Sin async/await, usaríamos .then() y .catch() (callbacks).
+ *
+ * @param {string} url - URL del endpoint API
+ * @param {object} options - Opciones de fetch (method, body, headers)
+ * @returns {object|null} Datos JSON del servidor o null si hay error
+ */
 async function apiFetch(url, options = {}) {
     try {
         const response = await fetch(url, options);
@@ -16,12 +43,23 @@ async function apiFetch(url, options = {}) {
     }
 }
 
-// Helper: Show notification
+/**
+ * Muestra una notificación temporal tipo "toast".
+ *
+ * Tipos: 'success' (verde), 'error' (rojo), 'warning' (amarillo)
+ *
+ * La notificación aparece con animación, se mantiene 3 segundos
+ * y desaparece automáticamente. Solo se muestra una a la vez.
+ *
+ * @param {string} message - Texto del mensaje
+ * @param {string} type - Tipo: 'success', 'error', 'warning'
+ */
 function showNotification(message, type = 'success') {
-    // Remove existing notification
+    // Eliminar notificación anterior si existe
     const existing = document.querySelector('.notification');
     if (existing) existing.remove();
 
+    // Crear elemento de notificación
     const div = document.createElement('div');
     div.className = 'notification';
     div.style.cssText = `
@@ -38,6 +76,7 @@ function showNotification(message, type = 'success') {
         max-width: 400px;
     `;
 
+    // Color según el tipo de notificación
     switch (type) {
         case 'success':
             div.style.background = '#27ae60';
@@ -55,19 +94,25 @@ function showNotification(message, type = 'success') {
     div.textContent = message;
     document.body.appendChild(div);
 
-    // Auto remove after 3 seconds
+    // Eliminar automáticamente después de 3 segundos
     setTimeout(() => {
         div.style.animation = 'slideOut 0.3s ease';
         setTimeout(() => div.remove(), 300);
     }, 3000);
 }
 
-// Helper: Format price
+/**
+ * Formatea un número como precio con símbolo de dólar.
+ * Ejemplo: formatPrice(12.5) → "$12.50"
+ */
 function formatPrice(price) {
     return '$' + parseFloat(price).toFixed(2);
 }
 
-// Helper: Format date
+/**
+ * Formatea una fecha ISO a formato legible en español.
+ * Ejemplo: "2024-07-20T14:30:00" → "20/07/2024, 02:30 p.m."
+ */
 function formatDate(dateStr) {
     if (!dateStr) return '-';
     const date = new Date(dateStr);
@@ -80,18 +125,29 @@ function formatDate(dateStr) {
     });
 }
 
-// Helper: Format date only
+/**
+ * Formatea una fecha a solo YYYY-MM-DD.
+ */
 function formatDateOnly(dateStr) {
     if (!dateStr) return '-';
     return dateStr.substring(0, 10);
 }
 
-// Helper: Confirm action
+/**
+ * Muestra un diálogo de confirmación antes de acciones destructivas.
+ * Ejemplo: if (confirmAction('¿Eliminar?')) { ... }
+ *
+ * @param {string} message - Pregunta para el usuario
+ * @returns {boolean} true si confirmó, false si canceló
+ */
 function confirmAction(message) {
     return confirm(message);
 }
 
-// Add CSS animation keyframes
+// ============================================
+// Agregar animaciones CSS para notificaciones
+// Se inyectan dinámicamente al cargar la página
+// ============================================
 const style = document.createElement('style');
 style.textContent = `
     @keyframes slideIn {

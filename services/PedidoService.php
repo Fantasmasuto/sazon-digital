@@ -1,7 +1,15 @@
 <?php
 /**
- * Service: PedidoService
- * Handles order business logic
+ * ============================================
+ * SERVICIO DE PEDIDOS
+ * ============================================
+ *
+ * Maneja la lógica de negocio de pedidos (órdenes).
+ *
+ * Regla de negocio importante:
+ * Cuando un pedido se marca como "Entregado" (estado_id = 5),
+ * se crea automáticamente una venta en la tabla de ventas.
+ * Esto conecta el flujo: Pedido → Venta → Reporte de ventas.
  */
 
 require_once __DIR__ . '/../models/Pedido.php';
@@ -14,33 +22,53 @@ class PedidoService {
         $this->pedido = new Pedido();
     }
 
-    // Get all orders
+    /**
+     * Obtener todos los pedidos, opcionalmente filtrados por estado.
+     */
     public function getAll($estadoId = null) {
         return $this->pedido->getAll($estadoId);
     }
 
-    // Get order by ID with details
+    /**
+     * Obtener un pedido por ID, incluyendo sus productos (detalle).
+     * Combina la información del pedido con su detalle en un solo array.
+     */
     public function getById($id) {
         $pedido = $this->pedido->findById($id);
         if ($pedido) {
+            // Agregar los productos del pedido al resultado
             $pedido['detalle'] = $this->pedido->getDetalle($id);
         }
         return $pedido;
     }
 
-    // Create order
+    /**
+     * Crear un nuevo pedido con sus productos.
+     * El modelo maneja la transacción para insertar pedido + detalles.
+     */
     public function create($data) {
         return $this->pedido->create($data);
     }
 
-    // Update order status
+    /**
+     * Cambiar el estado de un pedido.
+     *
+     * REGLA DE NEGOCIO: Si el nuevo estado es "Entregado" (5),
+     * se crea una venta automáticamente con el total del pedido.
+     * El cajero registrado es el usuario que cambió el estado.
+     *
+     * @param int $id ID del pedido
+     * @param int $estadoId Nuevo estado
+     */
     public function updateEstado($id, $estadoId) {
         $result = $this->pedido->updateEstado($id, $estadoId);
 
-        // If status is "Entregado" (5), auto-create sale
+        // Auto-crear venta al entregar el pedido
         if ($estadoId == 5) {
             $pedido = $this->pedido->findById($id);
             $venta = new Venta();
+
+            // Verificar que no exista ya una venta para este pedido
             if (!$venta->existsForOrder($id)) {
                 $venta->create([
                     'pedido_id' => $id,
@@ -53,32 +81,45 @@ class PedidoService {
         return $result;
     }
 
-    // Delete order
+    /**
+     * Eliminar un pedido.
+     */
     public function delete($id) {
         return $this->pedido->delete($id);
     }
 
-    // Get order states
+    /**
+     * Obtener la lista de estados posibles para un pedido.
+     */
     public function getEstados() {
         return $this->pedido->getEstados();
     }
 
-    // Get available tables
+    /**
+     * Obtener mesas disponibles (no ocupadas).
+     */
     public function getMesasDisponibles() {
         return $this->pedido->getMesasDisponibles();
     }
 
-    // Get all tables
+    /**
+     * Obtener todas las mesas (disponibles y ocupadas).
+     */
     public function getMesas() {
         return $this->pedido->getMesas();
     }
 
-    // Get kitchen orders
+    /**
+     * Obtener pedidos activos para la vista de cocina.
+     * Excluye pedidos entregados y cancelados.
+     */
     public function getForKitchen() {
         return $this->pedido->getForKitchen();
     }
 
-    // Get order detail
+    /**
+     * Obtener el detalle (productos) de un pedido.
+     */
     public function getDetalle($pedidoId) {
         return $this->pedido->getDetalle($pedidoId);
     }

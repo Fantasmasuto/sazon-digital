@@ -1,7 +1,12 @@
 <?php
 /**
- * Service: VentaService
- * Handles sales business logic
+ * ============================================
+ * SERVICIO DE VENTAS
+ * ============================================
+ *
+ * Maneja la lógica de negocio de ventas.
+ * Las ventas se generan automáticamente al entregar un pedido
+ * (ver PedidoService), pero también se pueden crear manualmente.
  */
 
 require_once __DIR__ . '/../models/Venta.php';
@@ -13,22 +18,30 @@ class VentaService {
         $this->venta = new Venta();
     }
 
-    // Get all sales with optional filters
+    /**
+     * Obtener ventas con filtros opcionales de fecha.
+     */
     public function getAll($fechaInicio = null, $fechaFin = null) {
         return $this->venta->getAll($fechaInicio, $fechaFin);
     }
 
-    // Create sale
+    /**
+     * Crear una venta manualmente.
+     */
     public function create($data) {
         return $this->venta->create($data);
     }
 
-    // Get daily summary
+    /**
+     * Obtener resumen del día: total ventas, ingresos, ticket promedio.
+     */
     public function getDailySummary($fecha = null) {
         return $this->venta->getDailySummary($fecha);
     }
 
-    // Get summary for date range
+    /**
+     * Obtener resumen para un rango de fechas.
+     */
     public function getSummary($fechaInicio = null, $fechaFin = null) {
         return $this->venta->getSummary($fechaInicio, $fechaFin);
     }

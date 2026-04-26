@@ -1,19 +1,35 @@
 <?php
 /**
- * Model: Usuario
- * Handles database operations for users
+ * ============================================
+ * MODELO: USUARIO
+ * ============================================
+ *
+ * Este modelo maneja TODAS las operaciones de base de datos
+ * relacionadas con usuarios. Los modelos SOLO contienen SQL.
+ *
+ * ¿Qué es un Modelo?
+ * En la arquitectura de capas, el modelo es responsable de
+ * comunicarse con la base de datos. No sabe nada de HTTP,
+ * formularios ni HTML. Solo hace consultas SQL.
+ *
+ * Usamos PDO con Prepared Statements para prevenir inyección SQL.
+ * Ejemplo peligroso: "SELECT * FROM usuarios WHERE email = '$email'"
+ * Ejemplo seguro:    "SELECT * FROM usuarios WHERE email = ?" + [$email]
  */
 
 require_once __DIR__ . '/../config/database.php';
 
 class Usuario {
-    private $pdo;
+    private $pdo;  // Conexión a la base de datos
 
     public function __construct() {
         $this->pdo = getConnection();
     }
 
-    // Find user by ID
+    /**
+     * Buscar usuario por ID.
+     * JOIN con roles para obtener el nombre del rol.
+     */
     public function findById($id) {
         $stmt = $this->pdo->prepare("
             SELECT u.*, r.nombre as rol_nombre
@@ -22,10 +38,12 @@ class Usuario {
             WHERE u.id = ?
         ");
         $stmt->execute([$id]);
-        return $stmt->fetch();
+        return $stmt->fetch();  // fetch() retorna un array o false
     }
 
-    // Find user by email
+    /**
+     * Buscar usuario por email (usado en login).
+     */
     public function findByEmail($email) {
         $stmt = $this->pdo->prepare("
             SELECT u.*, r.nombre as rol_nombre
@@ -37,7 +55,9 @@ class Usuario {
         return $stmt->fetch();
     }
 
-    // Get all users with role info
+    /**
+     * Obtener todos los usuarios con su información de rol.
+     */
     public function getAll() {
         $stmt = $this->pdo->query("
             SELECT u.*, r.nombre as rol_nombre
@@ -45,10 +65,14 @@ class Usuario {
             JOIN roles r ON u.rol_id = r.id
             ORDER BY u.id ASC
         ");
-        return $stmt->fetchAll();
+        return $stmt->fetchAll();  // fetchAll() retorna TODOS los registros
     }
 
-    // Create new user
+    /**
+     * Crear un nuevo usuario.
+     * password_hash() encripta la contraseña antes de guardarla.
+     * NUNCA guardes contraseñas en texto plano.
+     */
     public function create($data) {
         $stmt = $this->pdo->prepare("
             INSERT INTO usuarios (nombre, email, password, rol_id, estado)
@@ -57,14 +81,18 @@ class Usuario {
         $stmt->execute([
             $data['nombre'],
             $data['email'],
-            password_hash($data['password'], PASSWORD_DEFAULT),
+            password_hash($data['password'], PASSWORD_DEFAULT),  // Encriptar contraseña
             $data['rol_id'],
-            $data['estado'] ?? 'activo'
+            $data['estado'] ?? 'activo'  // Valor por defecto si no se envía
         ]);
-        return $this->pdo->lastInsertId();
+        return $this->pdo->lastInsertId();  // Retorna el ID auto-generado
     }
 
-    // Update user
+    /**
+     * Actualizar usuario.
+     * Solo actualiza los campos que se envían (actualización parcial).
+     * La contraseña solo se actualiza si se envía una nueva.
+     */
     public function update($id, $data) {
         $fields = [];
         $values = [];
@@ -92,25 +120,32 @@ class Usuario {
 
         if (empty($fields)) return false;
 
-        $values[] = $id;
+        $values[] = $id;  // Para el WHERE
         $sql = "UPDATE usuarios SET " . implode(', ', $fields) . " WHERE id = ?";
         $stmt = $this->pdo->prepare($sql);
         return $stmt->execute($values);
     }
 
-    // Delete user
+    /**
+     * Eliminar un usuario.
+     */
     public function delete($id) {
         $stmt = $this->pdo->prepare("DELETE FROM usuarios WHERE id = ?");
         return $stmt->execute([$id]);
     }
 
-    // Get all roles
+    /**
+     * Obtener todos los roles disponibles.
+     */
     public function getRoles() {
         $stmt = $this->pdo->query("SELECT * FROM roles ORDER BY id ASC");
         return $stmt->fetchAll();
     }
 
-    // Save remember me token
+    /**
+     * Guardar token de "Recordarme" en la base de datos.
+     * Se crea al hacer login con la opción "Recordarme" marcada.
+     */
     public function saveToken($userId, $token, $expiry) {
         $stmt = $this->pdo->prepare("
             INSERT INTO tokens_login (usuario_id, token, expira_en)
@@ -119,7 +154,10 @@ class Usuario {
         return $stmt->execute([$userId, $token, $expiry]);
     }
 
-    // Find user by remember token
+    /**
+     * Buscar usuario por token de "Recordarme".
+     * Solo retorna si el token existe Y no ha expirado (expira_en > NOW()).
+     */
     public function findByToken($token) {
         $stmt = $this->pdo->prepare("
             SELECT u.*, r.nombre as rol_nombre, t.expira_en
@@ -132,13 +170,17 @@ class Usuario {
         return $stmt->fetch();
     }
 
-    // Delete token
+    /**
+     * Eliminar un token específico (al hacer logout).
+     */
     public function deleteToken($token) {
         $stmt = $this->pdo->prepare("DELETE FROM tokens_login WHERE token = ?");
         return $stmt->execute([$token]);
     }
 
-    // Delete all tokens for user
+    /**
+     * Eliminar todos los tokens de un usuario.
+     */
     public function deleteUserTokens($userId) {
         $stmt = $this->pdo->prepare("DELETE FROM tokens_login WHERE usuario_id = ?");
         return $stmt->execute([$userId]);

@@ -1,8 +1,22 @@
-# Sazón Digital - Apache Configuration
-# Enable mod_rewrite
+# ============================================
+# Sazón Digital - Configuración de Apache
+# ============================================
+#
+# Este archivo configura el servidor Apache en XAMPP.
+# Apache lee este archivo automáticamente al servir
+# archivos desde esta carpeta.
+#
+# REQUISITO: mod_rewrite debe estar habilitado en XAMPP.
+# En XAMPP viene habilitado por defecto.
+
+# Habilitar el motor de reescritura de URLs
 RewriteEngine On
 
-# Deny access to sensitive directories
+# ============================================
+# SEGURIDAD: Bloquear acceso directo a carpetas del backend
+# Estas carpetas contienen código PHP del servidor
+# que NO debe ser accesible desde el navegador.
+# ============================================
 RewriteRule ^config/ - [F,L]
 RewriteRule ^models/ - [F,L]
 RewriteRule ^services/ - [F,L]
@@ -10,16 +24,21 @@ RewriteRule ^controllers/ - [F,L]
 RewriteRule ^includes/ - [F,L]
 RewriteRule ^database/ - [F,L]
 
-# Allow access to assets and uploads
+# Permitir acceso a carpetas públicas (CSS, JS, imágenes)
 RewriteRule ^assets/ - [L]
 RewriteRule ^uploads/ - [L]
 
-# Prevent directory listing
+# Prevenir listado de directorios
+# Sin esto, un usuario podría ver todos los archivos de una carpeta
 Options -Indexes
 
-# Set default charset
+# Configurar charset por defecto
 AddDefaultCharset UTF-8
 
-# PHP settings
+# ============================================
+# CONFIGURACIÓN DE PHP (para subida de imágenes)
+# upload_max_filesize: tamaño máximo de un archivo subido
+# post_max_size: tamaño máximo de datos POST (debe ser >= upload_max)
+# ============================================
 php_value upload_max_filesize 10M
 php_value post_max_size 10M
