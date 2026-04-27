@@ -1,0 +1,69 @@
+# ============================================
+# Sazón Digital - Configuración de Apache
+# ============================================
+#
+# Este archivo configura el servidor Apache en XAMPP.
+# Apache lee este archivo automáticamente al servir
+# archivos desde esta carpeta.
+#
+# REQUISITO: mod_rewrite debe estar habilitado en XAMPP.
+# En XAMPP viene habilitado por defecto.
+
+# Habilitar el motor de reescritura de URLs
+RewriteEngine On
+
+# ============================================
+# SEGURIDAD: Bloquear acceso directo a carpetas del backend
+# Estas carpetas contienen código PHP del servidor
+# que NO debe ser accesible desde el navegador.
+# ============================================
+RewriteRule ^config/ - [F,L]
+RewriteRule ^models/ - [F,L]
+RewriteRule ^services/ - [F,L]
+RewriteRule ^controllers/ - [F,L]
+RewriteRule ^includes/ - [F,L]
+RewriteRule ^database/ - [F,L]
+
+# Permitir acceso a carpetas públicas (CSS, JS, imágenes)
+RewriteRule ^assets/ - [L]
+RewriteRule ^uploads/ - [L]
+
+# Prevenir listado de directorios
+# Sin esto, un usuario podría ver todos los archivos de una carpeta
+Options -Indexes
+
+# Configurar charset por defecto
+AddDefaultCharset UTF-8
+
+# ============================================
+# CONFIGURACIÓN DE PHP (para subida de imágenes)
+# upload_max_filesize: tamaño máximo de un archivo subido
+# post_max_size: tamaño máximo de datos POST (debe ser >= upload_max)
+# ============================================
+php_value upload_max_filesize 10M
+php_value post_max_size 10M
+
+# ============================================
+# HEADERS DE SEGURIDAD
+# Estos headers protegen contra ataques comunes.
+# OWASP recomienda incluirlos en toda aplicación web.
+# ============================================
+<IfModule mod_headers.c>
+    # Prevenir que la página se cargue dentro de un iframe (anti-clickjacking)
+    Header set X-Frame-Options "SAMEORIGIN"
+
+    # Evitar que el navegador intente adivinar el tipo MIME del archivo
+    Header set X-Content-Type-Options "nosniff"
+
+    # Activar el filtro anti-XSS del navegador
+    Header set X-XSS-Protection "1; mode=block"
+
+    # Controlar qué información se envía en el header Referer
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+
+    # Política de permisos: desactivar funciones innecesarias del navegador
+    Header set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+
+    # Proteger la cookie de sesión PHP
+    Header edit Set-Cookie ^(.*)$ "$1; HttpOnly; SameSite=Strict"
+</IfModule>
