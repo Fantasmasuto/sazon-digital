@@ -269,10 +269,10 @@ define('DB_PASS', '');            // Sin contraseña por defecto
 - Vista detalle con resumen y productos
 - 6 estados de cocina:
   - **Registrado** - Pedido recibido
-  - **En Preparación** - Se está cocinando
-  - **Listo para Recoger** - Listo para servir
-  - **En Camino** - En proceso de entrega
-  - **Entregado** - Completado (genera venta automática)
+  - **Preparación** - Se está cocinando
+  - **Listo** - Listo para servir al cliente
+  - **Entregado** - Entregado en la mesa del cliente
+  - **Finalizado** - Pagado y cerrado (genera venta automática)
   - **Cancelado** - Pedido cancelado
 
 ### 4. Ventas
@@ -280,7 +280,7 @@ define('DB_PASS', '');            // Sin contraseña por defecto
 - Filtro por rango de fechas
 - Tarjetas de resumen: ingresos totales, ticket promedio, cantidad
 - Historial detallado con método de pago
-- Venta automática al marcar pedido como "Entregado"
+- Venta automática al marcar pedido como "Finalizado" (pagado)
 
 ### 5. Reservaciones
 - Crear reservaciones de mesas
@@ -318,13 +318,13 @@ define('DB_PASS', '');            // Sin contraseña por defecto
         │
 3. Cocina recibe el pedido (estado: "Registrado")
         │
-4. Cocina cambia estado a "En Preparación"
+4. Cocina cambia estado a "Preparación"
         │
-5. Cocina cambia estado a "Listo para Recoger"
+5. Cocina cambia estado a "Listo"
         │
-6. Mesero entrega al cliente
+6. Mesero entrega al cliente → estado "Entregado"
         │
-7. Se marca como "Entregado" → SE CREA VENTA AUTOMÁTICAMENTE
+7. Cajero cobra → estado "Finalizado" → SE CREA VENTA AUTOMÁTICAMENTE
         │
 8. La venta aparece en el reporte diario
         │
@@ -483,6 +483,91 @@ productos   pedidos ────── estados_pedido
 | 11 | `reservaciones` | Reservaciones de mesas | 2 |
 | 12 | `configuracion_horarios` | Horarios de operación | 7 |
 
+### Diagrama Entidad-Relación (ER)
+
+```
+┌──────────────┐       ┌──────────────────┐       ┌──────────────┐
+│   roles      │       │    usuarios      │       │ tokens_login │
+├──────────────┤       ├──────────────────┤       ├──────────────┤
+│ PK id        │──1:N──│ PK id            │──1:N──│ PK id        │
+│    nombre    │       │ FK rol_id        │       │ FK usuario_id│
+└──────────────┘       │    nombre        │       │    token     │
+                       │    email         │       │    expira_en │
+                       │    password      │       └──────────────┘
+                       │    estado        │
+                       └──────┬───────────┘
+                              │
+                    ┌─────────┼──────────┐
+                    │ 1:N     │ 1:N      │ 1:N
+                    ▼         ▼          ▼
+          ┌──────────────┐ ┌────────┐ ┌─────────────────┐
+          │   pedidos    │ │ ventas │ │  reservaciones  │
+          ├──────────────┤ ├────────┤ ├─────────────────┤
+          │ PK id        │ │ PK id  │ │ PK id           │
+          │ FK mesa_id   │ │FK ped. │ │ FK mesa_id      │
+          │ FK mesero_id │ │FK caj. │ │    cliente_nom.  │
+          │ FK estado_id │ │  total │ │    fecha         │
+          │    notas     │ │  pago  │ │    hora_inicio   │
+          │    total     │ └───┬────┘ │    hora_fin      │
+          └──────┬───────┘     │      └────────┬────────┘
+                 │             │               │
+                 │ 1:N         │               │
+                 ▼             │               │
+       ┌─────────────────┐    │               │
+       │ detalle_pedido  │    │               │
+       ├─────────────────┤    │               │
+       │ PK id           │    │               │
+       │ FK pedido_id    │    │               │
+       │ FK producto_id  │    │               │
+       │    cantidad     │    │               │
+       │    subtotal     │    │               │
+       └────────┬────────┘    │               │
+                │             │               │
+                │ N:1         │               │
+                ▼             │               │
+       ┌──────────────┐      │               │
+       │  productos   │      │               │
+       ├──────────────┤      │               │
+       │ PK id        │      │               │
+       │ FK categ_id  │      │               │
+       │    nombre    │      │               │
+       │    precio    │      │               │
+       │    imagen    │      │               │
+       └──────┬───────┘      │               │
+              │              │               │
+              │ N:1          │               │
+              ▼              │               │
+       ┌──────────────┐      │          ┌────┴───────────────────┐
+       │ categorias   │      │          │        mesas           │
+       ├──────────────┤      │          ├────────────────────────┤
+       │ PK id        │      │          │ PK id                  │
+       │    nombre    │      │          │    numero               │
+       └──────────────┘      │          │    capacidad            │
+                             │          │    estado               │
+       ┌──────────────────┐  │          └────────────────────────┘
+       │ estados_pedido   │  │
+       ├──────────────────┤  │     ┌─────────────────────────────┐
+       │ PK id            │  │     │ configuracion_horarios      │
+       │    nombre        │  │     ├─────────────────────────────┤
+       │    color         │  │     │ PK id                       │
+       │    orden         │  │     │    dia_semana                │
+       └──────────────────┘  │     │    abierto                  │
+                             │     │    hora_apertura             │
+   Relaciones principales:   │     │    hora_cierre               │
+   ─────────────────────     │     └─────────────────────────────┘
+   roles ──1:N── usuarios
+   usuarios ──1:N── pedidos (mesero)
+   usuarios ──1:N── ventas (cajero)
+   usuarios ──1:N── tokens_login
+   mesas ──1:N── pedidos
+   mesas ──1:N── reservaciones
+   estados_pedido ──1:N── pedidos
+   categorias ──1:N── productos
+   pedidos ──1:N── detalle_pedido
+   productos ──1:N── detalle_pedido
+   pedidos ──1:1── ventas
+```
+
 ---
 
 ## Arquitectura
@@ -516,7 +601,7 @@ productos   pedidos ────── estados_pedido
 **¿Por qué esta estructura?**
 
 - **Modelos:** Solo SQL. No saben de HTTP ni de HTML.
-- **Servicios:** Reglas de negocio. Ejemplo: "al entregar pedido, crear venta automática".
+- **Servicios:** Reglas de negocio. Ejemplo: "al finalizar pedido (pagado), crear venta automática".
 - **Controladores:** Procesan datos de entrada y llaman a los servicios.
 - **API:** Reciben peticiones HTTP y responden JSON.
 - **Vistas:** Muestran HTML al usuario.
@@ -528,8 +613,8 @@ Esta separación hace que el código sea más fácil de entender, mantener y mod
 ## Reglas de Negocio
 
 1. **Horarios:** Si el restaurante está cerrado, no se pueden crear pedidos, ventas ni reservaciones.
-2. **Pedidos:** Al marcar un pedido como "Entregado", se genera una venta automáticamente.
-3. **Mesas:** Al crear un pedido con mesa, la mesa se marca como "ocupada". Al entregar o cancelar, vuelve a "disponible".
+2. **Pedidos:** Al marcar un pedido como "Finalizado" (pagado), se genera una venta automáticamente.
+3. **Mesas:** Al crear un pedido con mesa, la mesa se marca como "ocupada". Al finalizar o cancelar, vuelve a "disponible".
 4. **Reservaciones:** No se puede reservar una mesa si ya tiene otra reservación en el mismo horario.
 5. **Usuarios:** Un usuario "inactivo" no puede iniciar sesión.
 6. **Contraseñas:** Se almacenan encriptadas con `password_hash()` (bcrypt).

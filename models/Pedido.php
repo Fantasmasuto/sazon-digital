@@ -133,8 +133,8 @@ class Pedido {
         $stmt = $this->pdo->prepare("UPDATE pedidos SET estado_id = ? WHERE id = ?");
         $result = $stmt->execute([$estadoId, $id]);
 
-        // If order is finalized or cancelled, free the table
-        if ($estadoId >= 5) { // Entregado or Cancelado
+        // Si el pedido se finaliza o cancela, liberar la mesa
+        if ($estadoId >= 5) { // Finalizado(5) o Cancelado(6)
             $pedido = $this->findById($id);
             if ($pedido && $pedido['mesa_id']) {
                 $stmtMesa = $this->pdo->prepare("UPDATE mesas SET estado = 'disponible' WHERE id = ?");

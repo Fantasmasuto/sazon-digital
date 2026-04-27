@@ -7,9 +7,10 @@
  * Maneja la lógica de negocio de pedidos (órdenes).
  *
  * Regla de negocio importante:
- * Cuando un pedido se marca como "Entregado" (estado_id = 5),
+ * Cuando un pedido se marca como "Finalizado" (estado_id = 5),
  * se crea automáticamente una venta en la tabla de ventas.
- * Esto conecta el flujo: Pedido → Venta → Reporte de ventas.
+ * Finalizado = el cliente ya pagó. Esto cierra el ciclo:
+ * Pedido → Entregado → Finalizado (pagado) → Venta → Reporte
  */
 
 require_once __DIR__ . '/../models/Pedido.php';
@@ -53,8 +54,9 @@ class PedidoService {
     /**
      * Cambiar el estado de un pedido.
      *
-     * REGLA DE NEGOCIO: Si el nuevo estado es "Entregado" (5),
+     * REGLA DE NEGOCIO: Si el nuevo estado es "Finalizado" (5),
      * se crea una venta automáticamente con el total del pedido.
+     * Finalizado significa que el cliente pagó y el pedido se cierra.
      * El cajero registrado es el usuario que cambió el estado.
      *
      * @param int $id ID del pedido
@@ -63,7 +65,7 @@ class PedidoService {
     public function updateEstado($id, $estadoId) {
         $result = $this->pedido->updateEstado($id, $estadoId);
 
-        // Auto-crear venta al entregar el pedido
+        // Auto-crear venta al finalizar el pedido (pagado)
         if ($estadoId == 5) {
             $pedido = $this->pedido->findById($id);
             $venta = new Venta();

@@ -127,8 +127,9 @@ CREATE TABLE mesas (
 -- El campo "orden" indica la secuencia lógica.
 -- El campo "color" se usa en la interfaz web.
 --
--- Flujo: Registrado -> Preparación -> Listo -> Entregado
+-- Flujo: Registrado -> Preparación -> Listo -> Entregado -> Finalizado
 --        (puede ser Cancelado en cualquier momento)
+--        La VENTA se genera al marcar como "Finalizado" (pagado)
 -- ============================================
 CREATE TABLE estados_pedido (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -183,7 +184,7 @@ CREATE TABLE detalle_pedido (
 -- ============================================
 -- TABLA 10: VENTAS
 -- Registra las ventas finalizadas.
--- Se crea automáticamente cuando un pedido se marca como "Entregado".
+-- Se crea automáticamente cuando un pedido se marca como "Finalizado" (pagado).
 -- Cada venta está ligada a un pedido y a un cajero.
 -- ============================================
 CREATE TABLE ventas (
@@ -282,12 +283,12 @@ INSERT INTO usuarios (nombre, email, password, rol_id, estado) VALUES
 -- Estos estados representan el ciclo de vida de una orden.
 -- ============================================
 INSERT INTO estados_pedido (nombre, descripcion, color, orden) VALUES
-('Registrado',        'El pedido ha sido recibido y está esperando ser procesado.',           '#3498db', 1),
-('En Preparación',    'El pedido está siendo preparado en la cocina.',                        '#f39c12', 2),
-('Listo para Recoger','El pedido está listo para ser recogido por el cliente o repartidor.',  '#27ae60', 3),
-('En Camino',         'El pedido está siendo entregado al cliente.',                          '#9b59b6', 4),
-('Entregado',         'El pedido ha sido entregado exitosamente al cliente.',                 '#2ecc71', 5),
-('Cancelado',         'El pedido ha sido cancelado.',                                         '#e74c3c', 6);
+('Registrado',     'El pedido ha sido recibido y está esperando ser procesado.',  '#3498db', 1),
+('Preparación',    'El pedido está siendo preparado en la cocina.',               '#f39c12', 2),
+('Listo',          'El pedido está listo para servir al cliente.',                '#e67e22', 3),
+('Entregado',      'El pedido ha sido entregado al cliente en su mesa.',          '#9b59b6', 4),
+('Finalizado',     'El pedido ha sido pagado y cerrado. Se registra la venta.',   '#2ecc71', 5),
+('Cancelado',      'El pedido ha sido cancelado.',                                '#e74c3c', 6);
 
 -- ============================================
 -- CATEGORÍAS DE PRODUCTOS
@@ -341,7 +342,7 @@ INSERT INTO productos (nombre, descripcion, precio, categoria_id) VALUES
 -- (Para que la aplicación no se vea vacía al iniciar)
 -- ============================================
 
--- Pedido #1: Juan Pérez (Mesero: María García, Mesa 1, Entregado)
+-- Pedido #1: Juan Pérez (Mesero: María García, Mesa 1, Finalizado/Pagado)
 INSERT INTO pedidos (mesa_id, mesero_id, estado_id, notas, total) VALUES
 (1, 2, 5, 'Sin cebolla en la hamburguesa', 25.00);
 
