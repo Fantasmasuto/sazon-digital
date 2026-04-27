@@ -42,3 +42,28 @@ AddDefaultCharset UTF-8
 # ============================================
 php_value upload_max_filesize 10M
 php_value post_max_size 10M
+
+# ============================================
+# HEADERS DE SEGURIDAD
+# Estos headers protegen contra ataques comunes.
+# OWASP recomienda incluirlos en toda aplicación web.
+# ============================================
+<IfModule mod_headers.c>
+    # Prevenir que la página se cargue dentro de un iframe (anti-clickjacking)
+    Header set X-Frame-Options "SAMEORIGIN"
+
+    # Evitar que el navegador intente adivinar el tipo MIME del archivo
+    Header set X-Content-Type-Options "nosniff"
+
+    # Activar el filtro anti-XSS del navegador
+    Header set X-XSS-Protection "1; mode=block"
+
+    # Controlar qué información se envía en el header Referer
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+
+    # Política de permisos: desactivar funciones innecesarias del navegador
+    Header set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+
+    # Proteger la cookie de sesión PHP
+    Header edit Set-Cookie ^(.*)$ "$1; HttpOnly; SameSite=Strict"
+</IfModule>
