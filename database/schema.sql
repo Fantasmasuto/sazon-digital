@@ -259,24 +259,24 @@ INSERT INTO roles (nombre, descripcion) VALUES
 -- Admin principal
 INSERT INTO usuarios (nombre, email, password, rol_id, estado) VALUES
 ('Juan Pérez', 'admin@sazondigital.com',
- '$2y$10$8K1p/a0dR1xqM8k3.1ZqYe6VJY6OYKQ1s2CmJEuIp4aJ1nLxHxeO', 1, 'activo');
+ '$2y$10$CcSl8I/t8.Heg9Eri/q6LOA8V9JGB/F6Y1m4LwlEccGe3/vFhwPDe', 1, 'activo');
 
 -- Meseros de prueba
 INSERT INTO usuarios (nombre, email, password, rol_id, estado) VALUES
 ('María García', 'maria.garcia@sazondigital.com',
- '$2y$10$8K1p/a0dR1xqM8k3.1ZqYe6VJY6OYKQ1s2CmJEuIp4aJ1nLxHxeO', 2, 'activo'),
+ '$2y$10$CcSl8I/t8.Heg9Eri/q6LOA8V9JGB/F6Y1m4LwlEccGe3/vFhwPDe', 2, 'activo'),
 ('Carlos López', 'carlos.lopez@sazondigital.com',
- '$2y$10$8K1p/a0dR1xqM8k3.1ZqYe6VJY6OYKQ1s2CmJEuIp4aJ1nLxHxeO', 2, 'activo');
+ '$2y$10$CcSl8I/t8.Heg9Eri/q6LOA8V9JGB/F6Y1m4LwlEccGe3/vFhwPDe', 2, 'activo');
 
 -- Usuario de cocina
 INSERT INTO usuarios (nombre, email, password, rol_id, estado) VALUES
 ('Ana Torres', 'ana.torres@sazondigital.com',
- '$2y$10$8K1p/a0dR1xqM8k3.1ZqYe6VJY6OYKQ1s2CmJEuIp4aJ1nLxHxeO', 3, 'activo');
+ '$2y$10$CcSl8I/t8.Heg9Eri/q6LOA8V9JGB/F6Y1m4LwlEccGe3/vFhwPDe', 3, 'activo');
 
 -- Usuario inactivo (para probar que no puede hacer login)
 INSERT INTO usuarios (nombre, email, password, rol_id, estado) VALUES
 ('Pedro Ruiz', 'pedro.ruiz@sazondigital.com',
- '$2y$10$8K1p/a0dR1xqM8k3.1ZqYe6VJY6OYKQ1s2CmJEuIp4aJ1nLxHxeO', 2, 'inactivo');
+ '$2y$10$CcSl8I/t8.Heg9Eri/q6LOA8V9JGB/F6Y1m4LwlEccGe3/vFhwPDe', 2, 'inactivo');
 
 -- ============================================
 -- ESTADOS DE PEDIDO
