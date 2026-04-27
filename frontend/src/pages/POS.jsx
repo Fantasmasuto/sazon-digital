@@ -18,8 +18,10 @@ export default function POS() {
       if (isOnline) {
         const res = await api.getProductos(search ? `search=${encodeURIComponent(search)}` : '');
         setProductos(res.data);
-        // Actualizar cache
-        await cacheProductos(res.data);
+        // Only cache the full product list, not filtered search results
+        if (!search) {
+          await cacheProductos(res.data);
+        }
       } else {
         // Cargar desde cache offline
         const cached = await getCachedProductos();

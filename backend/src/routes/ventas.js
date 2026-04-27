@@ -108,7 +108,7 @@ router.post('/sync', async (req, res, next) => {
 
     const results = await Venta.syncOffline(ventas);
 
-    const synced = results.filter((r) => r.success).length;
+    const synced = results.filter((r) => r.success && !r.duplicated).length;
     const failed = results.filter((r) => !r.success).length;
     const duplicated = results.filter((r) => r.duplicated).length;
 
