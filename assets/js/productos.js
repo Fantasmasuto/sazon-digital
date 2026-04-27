@@ -65,6 +65,9 @@ function renderProducts(products) {
         return;
     }
 
+    // Variable global USER_ROLE viene del header.php
+    const isAdmin = (typeof USER_ROLE !== 'undefined' && USER_ROLE === 'Administrador');
+
     tbody.innerHTML = products.map((p, index) => `
         <tr>
             <td>${index + 1}</td>
@@ -82,12 +85,14 @@ function renderProducts(products) {
                     ${p.estado}
                 </span>
             </td>
+            ${isAdmin ? `
             <td>
                 <div class="btn-group">
                     <a href="index.php?page=producto-form&id=${p.id}" class="btn btn-warning btn-sm">Editar</a>
                     <button class="btn btn-danger btn-sm" onclick="deleteProduct(${p.id})">Eliminar</button>
                 </div>
             </td>
+            ` : ''}
         </tr>
     `).join('');
 }

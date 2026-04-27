@@ -34,7 +34,9 @@ require_once __DIR__ . '/../layout/header.php';
                 <th>Categoría</th>
                 <th>Precio</th>
                 <th>Estado</th>
+                <?php if (hasRole('Administrador')): ?>
                 <th>Acciones</th>
+                <?php endif; ?>
             </tr>
         </thead>
         <tbody id="products-table-body">

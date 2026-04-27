@@ -37,6 +37,8 @@ async function loadOrders() {
         return;
     }
 
+    const isAdmin = (typeof USER_ROLE !== 'undefined' && USER_ROLE === 'Administrador');
+
     tbody.innerHTML = orders.map(order => `
         <tr>
             <td>#${order.id}</td>
@@ -48,7 +50,7 @@ async function loadOrders() {
             <td>
                 <div class="btn-group">
                     <a href="index.php?page=pedido-detalle&id=${order.id}" class="btn btn-info btn-sm">Ver</a>
-                    <button class="btn btn-danger btn-sm" onclick="deleteOrder(${order.id})">Eliminar</button>
+                    ${isAdmin ? `<button class="btn btn-danger btn-sm" onclick="deleteOrder(${order.id})">Eliminar</button>` : ''}
                 </div>
             </td>
         </tr>

@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sazón Digital - <?= $pageTitle ?? 'Sistema de Gestión' ?></title>
     <link rel="stylesheet" href="assets/css/styles.css">
+    <script>
+        // Variable global con el rol del usuario actual (se usa en los JS para mostrar/ocultar botones)
+        var USER_ROLE = '<?= htmlspecialchars($currentUser['rol'] ?? '') ?>';
+    </script>
 </head>
 <body>
 <div class="app-wrapper">

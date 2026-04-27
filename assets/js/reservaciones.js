@@ -29,6 +29,9 @@ async function loadReservations() {
         return;
     }
 
+    // Admin y Mesero pueden gestionar reservaciones, Cocina solo puede ver
+    const canManageReservations = (typeof USER_ROLE !== 'undefined' && USER_ROLE !== 'Cocina');
+
     tbody.innerHTML = reservations.map((res, index) => `
         <tr>
             <td>${index + 1}</td>
@@ -43,6 +46,7 @@ async function loadReservations() {
                     ${res.estado}
                 </span>
             </td>
+            ${canManageReservations ? `
             <td>
                 <div class="btn-group">
                     <button class="btn btn-warning btn-sm" onclick="editReservation(${res.id})">Editar</button>
@@ -51,6 +55,7 @@ async function loadReservations() {
                     <button class="btn btn-danger btn-sm" onclick="deleteReservation(${res.id})">Eliminar</button>
                 </div>
             </td>
+            ` : '<td>-</td>'}
         </tr>
     `).join('');
 }
