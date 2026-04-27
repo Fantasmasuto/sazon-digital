@@ -34,8 +34,14 @@
 async function apiFetch(url, options = {}) {
     try {
         const response = await fetch(url, options);
-        const data = await response.json();
-        return data;
+        const text = await response.text();
+        try {
+            return JSON.parse(text);
+        } catch (e) {
+            console.error('Respuesta no es JSON:', text.substring(0, 200));
+            showNotification('Error del servidor. Revisa la consola (F12) para más detalles.', 'error');
+            return null;
+        }
     } catch (error) {
         console.error('API Error:', error);
         showNotification('Error de conexión con el servidor', 'error');

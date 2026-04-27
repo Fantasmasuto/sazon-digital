@@ -46,7 +46,14 @@ function getConnection() {
         return $pdo;
 
     } catch (PDOException $e) {
-        // Si falla la conexión, mostrar error y detener la aplicación
-        die("Error de conexión a la base de datos: " . $e->getMessage());
+        // Si falla la conexión, retornar error en formato JSON para que
+        // las llamadas AJAX puedan interpretar el error correctamente.
+        http_response_code(500);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode([
+            'error' => 'Error de conexión a la base de datos',
+            'details' => $e->getMessage()
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
     }
 }
