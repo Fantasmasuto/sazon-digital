@@ -13,12 +13,39 @@
  */
 
 require_once __DIR__ . '/../models/Reservacion.php';
+require_once __DIR__ . '/../config/database.php';
 
 class ReservacionService {
     private $reservacion;
 
     public function __construct() {
         $this->reservacion = new Reservacion();
+    }
+
+    /**
+     * Verificar si el restaurante está abierto en el día y horario solicitado.
+     * Compara con la tabla configuracion_horarios.
+     */
+    private function isOpenOnDateTime($fecha, $horaInicio, $horaFin) {
+        $pdo = getConnection();
+        // Mapear fecha a día de la semana
+        $diasMap = ['domingo','lunes','martes','miercoles','jueves','viernes','sabado'];
+        $diaSemana = $diasMap[date('w', strtotime($fecha))];
+
+        $stmt = $pdo->prepare("SELECT * FROM configuracion_horarios WHERE dia_semana = ?");
+        $stmt->execute([$diaSemana]);
+        $config = $stmt->fetch();
+
+        if (!$config || !$config['abierto']) {
+            return ['open' => false, 'message' => "El restaurante está cerrado los días " . ucfirst($diaSemana)];
+        }
+
+        // Verificar que la hora de la reservación esté dentro del horario de operación
+        if ($horaInicio < $config['hora_apertura'] || $horaFin > $config['hora_cierre']) {
+            return ['open' => false, 'message' => "El horario del restaurante ese día es de {$config['hora_apertura']} a {$config['hora_cierre']}"];
+        }
+
+        return ['open' => true];
     }
 
     /**
@@ -43,7 +70,13 @@ class ReservacionService {
      * @return array {success: bool, id?: int, message: string}
      */
     public function create($data) {
-        // Verificar disponibilidad antes de crear
+        // Verificar que el restaurante esté abierto en ese día/hora
+        $scheduleCheck = $this->isOpenOnDateTime($data['fecha'], $data['hora_inicio'], $data['hora_fin']);
+        if (!$scheduleCheck['open']) {
+            return ['success' => false, 'message' => $scheduleCheck['message']];
+        }
+
+        // Verificar disponibilidad de la mesa antes de crear
         if (!$this->reservacion->isTableAvailable(
             $data['mesa_id'], $data['fecha'],
             $data['hora_inicio'], $data['hora_fin']
@@ -60,12 +93,19 @@ class ReservacionService {
      * Si se cambian la mesa, fecha u hora, re-verifica disponibilidad.
      */
     public function update($id, $data) {
-        // Re-verificar disponibilidad si cambia mesa/fecha/hora
+        // Re-verificar horario y disponibilidad si cambia mesa/fecha/hora
         if (isset($data['mesa_id']) && isset($data['fecha']) &&
             isset($data['hora_inicio']) && isset($data['hora_fin'])) {
+
+            // Verificar que el restaurante esté abierto
+            $scheduleCheck = $this->isOpenOnDateTime($data['fecha'], $data['hora_inicio'], $data['hora_fin']);
+            if (!$scheduleCheck['open']) {
+                return ['success' => false, 'message' => $scheduleCheck['message']];
+            }
+
             if (!$this->reservacion->isTableAvailable(
                 $data['mesa_id'], $data['fecha'],
-                $data['hora_inicio'], $data['hora_fin'], $id // Excluir la reservación actual
+                $data['hora_inicio'], $data['hora_fin'], $id
             )) {
                 return ['success' => false, 'message' => 'La mesa no está disponible en ese horario.'];
             }

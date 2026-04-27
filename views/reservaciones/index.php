@@ -54,8 +54,8 @@ require_once __DIR__ . '/../layout/header.php';
             </div>
 
             <div class="form-group">
-                <label for="res-telefono">Teléfono</label>
-                <input type="text" class="form-control" id="res-telefono">
+                <label for="res-telefono">Teléfono (10 dígitos) *</label>
+                <input type="tel" class="form-control" id="res-telefono" required maxlength="10" pattern="[0-9]{10}" placeholder="Ej: 5551234567">
             </div>
 
             <div class="form-group">
@@ -86,8 +86,8 @@ require_once __DIR__ . '/../layout/header.php';
             </div>
 
             <div class="form-group">
-                <label for="res-personas">Número de Personas</label>
-                <input type="number" class="form-control" id="res-personas" min="1" value="1">
+                <label for="res-personas">Número de Personas (máx. 10) *</label>
+                <input type="number" class="form-control" id="res-personas" min="1" max="10" value="1" required>
             </div>
 
             <div class="form-group">

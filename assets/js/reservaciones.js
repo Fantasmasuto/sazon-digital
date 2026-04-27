@@ -129,18 +129,49 @@ async function editReservation(id) {
     }
 }
 
-// Save reservation
+// Save reservation (con validaciones)
 async function saveReservation() {
     const id = document.getElementById('reservation-id').value;
+    const telefono = document.getElementById('res-telefono').value.trim();
+    const fecha = document.getElementById('res-fecha').value;
+    const horaInicio = document.getElementById('res-hora-inicio').value;
+    const horaFin = document.getElementById('res-hora-fin').value;
+    const numPersonas = parseInt(document.getElementById('res-personas').value);
+
+    // Validación 1: Teléfono debe tener exactamente 10 dígitos
+    if (!/^\d{10}$/.test(telefono)) {
+        showNotification('El teléfono debe tener exactamente 10 dígitos numéricos', 'error');
+        return;
+    }
+
+    // Validación 2: Solo fechas de hoy en adelante
+    const hoy = new Date().toISOString().split('T')[0];
+    if (fecha < hoy) {
+        showNotification('No se puede reservar en fechas pasadas. Selecciona de hoy en adelante.', 'error');
+        return;
+    }
+
+    // Validación 3: Hora inicio debe ser antes que hora fin
+    if (horaInicio >= horaFin) {
+        showNotification('La hora de inicio debe ser antes que la hora de fin', 'error');
+        return;
+    }
+
+    // Validación 4: Máximo 10 personas
+    if (numPersonas < 1 || numPersonas > 10) {
+        showNotification('El número de personas debe ser entre 1 y 10', 'error');
+        return;
+    }
+
     const data = {
         cliente_nombre: document.getElementById('res-nombre').value,
-        cliente_telefono: document.getElementById('res-telefono').value,
+        cliente_telefono: telefono,
         cliente_email: document.getElementById('res-email').value,
         mesa_id: parseInt(document.getElementById('res-mesa').value),
-        fecha: document.getElementById('res-fecha').value,
-        hora_inicio: document.getElementById('res-hora-inicio').value,
-        hora_fin: document.getElementById('res-hora-fin').value,
-        num_personas: parseInt(document.getElementById('res-personas').value),
+        fecha: fecha,
+        hora_inicio: horaInicio,
+        hora_fin: horaFin,
+        num_personas: numPersonas,
         notas: document.getElementById('res-notas').value
     };
 

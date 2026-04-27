@@ -45,6 +45,26 @@ class ReservacionController {
             return ['success' => false, 'message' => 'Datos incompletos'];
         }
 
+        // Validar teléfono: exactamente 10 dígitos
+        if (!preg_match('/^\d{10}$/', $data['cliente_telefono'])) {
+            return ['success' => false, 'message' => 'El teléfono debe tener exactamente 10 dígitos numéricos'];
+        }
+
+        // Validar fecha: solo hoy en adelante
+        if ($data['fecha'] < date('Y-m-d')) {
+            return ['success' => false, 'message' => 'No se puede reservar en fechas pasadas'];
+        }
+
+        // Validar hora inicio < hora fin
+        if ($data['hora_inicio'] >= $data['hora_fin']) {
+            return ['success' => false, 'message' => 'La hora de inicio debe ser antes que la hora de fin'];
+        }
+
+        // Validar máximo 10 personas
+        if ($data['num_personas'] < 1 || $data['num_personas'] > 10) {
+            return ['success' => false, 'message' => 'El número de personas debe ser entre 1 y 10'];
+        }
+
         return $this->service->create($data);
     }
 
