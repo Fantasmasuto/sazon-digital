@@ -2,12 +2,12 @@
 /**
  * View: Dashboard
  */
-$pageTitle = 'Dashboard Principal';
+$pageTitle = 'Panel Principal';
 $currentUser = getCurrentUser();
 require_once __DIR__ . '/layout/header.php';
 ?>
 
-<h1 class="page-title">Dashboard Principal</h1>
+<h1 class="page-title">Principal</h1>
 
 <div id="dashboard-content">
     <div class="summary-cards" id="summary-cards">
@@ -52,8 +52,9 @@ require_once __DIR__ . '/layout/header.php';
                 <a href="index.php?page=pedido-crear" class="btn btn-primary" style="text-align: center;">Nuevo Pedido</a>
                 <a href="index.php?page=productos" class="btn btn-info" style="text-align: center;">Ver Productos</a>
                 <a href="index.php?page=reservaciones" class="btn btn-warning" style="text-align: center;">Reservaciones</a>
+                <a href="index.php?page=cajero" class="btn btn-success" style="text-align: center;">Cajero</a>
                 <?php if (hasRole('Administrador')): ?>
-                <a href="index.php?page=ventas" class="btn btn-success" style="text-align: center;">Ver Ventas</a>
+                <a href="index.php?page=ventas" class="btn" style="text-align: center; background: #8e44ad; color: #fff;">Ver Ventas</a>
                 <a href="index.php?page=configuracion" class="btn btn-danger" style="text-align: center;">Configuración</a>
                 <?php endif; ?>
             </div>

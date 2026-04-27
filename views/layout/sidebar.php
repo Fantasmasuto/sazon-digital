@@ -14,7 +14,7 @@ $userRole = strtolower($currentUser['rol'] ?? '');
         <li>
             <a href="index.php?page=dashboard" class="<?= $currentPage === 'dashboard' ? 'active' : '' ?>">
                 <span class="nav-icon">&#9776;</span>
-                <span>Dashboard</span>
+                <span>Panel</span>
             </a>
         </li>
         <li>
@@ -43,6 +43,14 @@ $userRole = strtolower($currentUser['rol'] ?? '');
                 <span>Estados</span>
             </a>
         </li>
+        <?php if ($userRole === 'administrador' || $userRole === 'mesero'): ?>
+        <li>
+            <a href="index.php?page=cajero" class="<?= $currentPage === 'cajero' ? 'active' : '' ?>">
+                <span class="nav-icon">&#128179;</span>
+                <span>Cajero</span>
+            </a>
+        </li>
+        <?php endif; ?>
         <?php if ($userRole === 'administrador'): ?>
         <li>
             <a href="index.php?page=ventas" class="<?= $currentPage === 'ventas' ? 'active' : '' ?>">

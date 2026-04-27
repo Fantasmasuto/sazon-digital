@@ -24,6 +24,10 @@ if ($action === 'summary') {
 if ($action === 'daily') {
     jsonResponse($controller->dailySummary());
 }
+if ($action === 'update_metodo' && $method === 'PUT') {
+    $result = $controller->updateMetodoPago();
+    jsonResponse($result, $result['success'] ? 200 : 400);
+}
 
 switch ($method) {
     case 'GET':

@@ -108,6 +108,12 @@ switch ($page) {
         require_once __DIR__ . '/views/ventas/index.php';
         break;
 
+    // --- CAJERO ---
+    case 'cajero':
+        requireRole(['Administrador', 'Mesero']);
+        require_once __DIR__ . '/views/cajero/index.php';
+        break;
+
     // --- RESERVACIONES ---
     case 'reservaciones':
         require_once __DIR__ . '/views/reservaciones/index.php';
@@ -129,6 +135,6 @@ switch ($page) {
     default:
         http_response_code(404);
         echo '<h1>404 - Página no encontrada</h1>';
-        echo '<a href="index.php?page=dashboard">Volver al inicio</a>';
+        echo '<a href="index.php?page=dashboard">Volver al Panel</a>';
         break;
 }

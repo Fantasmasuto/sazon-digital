@@ -104,6 +104,16 @@ class Venta {
         return $stmt->fetch();
     }
 
+    // Update payment method for a sale by order ID
+    public function updateMetodoPago($pedidoId, $metodoPago) {
+        $stmt = $this->pdo->prepare("UPDATE ventas SET metodo_pago = ? WHERE pedido_id = ?");
+        $stmt->execute([$metodoPago, $pedidoId]);
+        if ($stmt->rowCount() > 0) {
+            return ['success' => true, 'message' => 'Método de pago actualizado'];
+        }
+        return ['success' => true, 'message' => 'Venta procesada'];
+    }
+
     // Check if sale exists for order
     public function existsForOrder($pedidoId) {
         $stmt = $this->pdo->prepare("SELECT COUNT(*) as count FROM ventas WHERE pedido_id = ?");

@@ -34,6 +34,24 @@ class VentaController {
         return $this->service->getSummary($fechaInicio, $fechaFin);
     }
 
+    // Update payment method for a sale
+    public function updateMetodoPago() {
+        $input = json_decode(file_get_contents('php://input'), true);
+        $pedidoId = intval($input['pedido_id'] ?? 0);
+        $metodoPago = $input['metodo_pago'] ?? 'efectivo';
+
+        if ($pedidoId <= 0) {
+            return ['success' => false, 'message' => 'Pedido inválido'];
+        }
+
+        $validMethods = ['efectivo', 'tarjeta', 'transferencia'];
+        if (!in_array($metodoPago, $validMethods)) {
+            return ['success' => false, 'message' => 'Método de pago inválido'];
+        }
+
+        return $this->service->updateMetodoPago($pedidoId, $metodoPago);
+    }
+
     // Create sale
     public function store() {
         $input = json_decode(file_get_contents('php://input'), true);

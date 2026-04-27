@@ -45,4 +45,11 @@ class VentaService {
     public function getSummary($fechaInicio = null, $fechaFin = null) {
         return $this->venta->getSummary($fechaInicio, $fechaFin);
     }
+
+    /**
+     * Actualizar el método de pago de una venta por su pedido_id.
+     */
+    public function updateMetodoPago($pedidoId, $metodoPago) {
+        return $this->venta->updateMetodoPago($pedidoId, $metodoPago);
+    }
 }
